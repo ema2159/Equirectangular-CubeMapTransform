@@ -173,8 +173,39 @@ __global__ void process(const cv::cuda::PtrStep<uchar3> posY,
     const int outputHeight = square_length * 1;
 
     if (dst_y < rows && dst_x < cols) {
+        // 2. Get the normalised u,v coordinates for the current pixel
+	float U = (float)dst_x / (outputWidth - 1);  // 0..1
+	float V = (float)dst_y / (outputHeight - 1);  // No need for 1-... as the image output
+	                                              // needs to start from the top anyway.
+	// 3. Taking the normalised cartesian coordinates calculate the polar
+	// coordinate for the current pixel
+        float theta = U * 2 * M_PI;
+        float phi = V * M_PI;
+        // 4. calculate the 3D cartesian coordinate which has been projected to a cubes face
+        cart2D cart = convertEquirectUVtoUnit2D(theta, phi, square_length);
 
-	float3 val = make_float3(0, 0, 0);
+        // 5. use this pixel to extract the colour
+
+	uchar3 val = make_uchar3(0, 0, 0);
+	if (cart.faceIndex == X_POS) {
+	    val = posX(cart.y, cart.x);
+	}
+	else if (cart.faceIndex == X_NEG) {
+	    val = negX(cart.y, cart.x);
+	}
+	else if (cart.faceIndex == Y_POS) {
+	    val = posY(cart.y, cart.x);
+	}
+	else if (cart.faceIndex == Y_NEG) {
+	    val = negY(cart.y, cart.x);
+	}
+	else if (cart.faceIndex == Z_POS) {
+	    val = posZ(cart.y, cart.x);
+	}
+	else if (cart.faceIndex == Z_NEG) {
+	    val = negZ(cart.y, cart.x);
+	}
+
 	dst(dst_y, dst_x).x = val.x;
 	dst(dst_y, dst_x).y = val.y;
 	dst(dst_y, dst_x).z = val.z;
