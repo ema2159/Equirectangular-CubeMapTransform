@@ -94,29 +94,6 @@ __device__ cart3D projectZ(float theta, float phi, int sign) {
     return result;
 }
 
-// __device__ uchar3 getColour(x, y, index) {
-
-//     if index == X_POS {
-// 	    return posx.getpixel(y, x);
-// 	}
-//     else if index == X_NEG {
-// 	    return negx.getpixel(y, x);
-// 	}
-//     else if index == Y_POS {
-// 	    return posy.getpixel(y, x);
-// 	}
-//     else if index == Y_NEG {
-// 	    return negy.getpixel(y, x);
-// 	}
-//     else if index == Z_POS {
-// 	    return posz.getpixel(y, x);
-// 	}
-//     else if index == Z_NEG {
-// 	    return negz.getpixel(y, x);
-// 	}
-// }
-
-
 __device__ cart2D convertEquirectUVtoUnit2D(float theta, float phi, int squareLength) {
     // Calculate the unit vector
     float x = cos(theta) * sin(phi);
@@ -172,6 +149,7 @@ __global__ void process(const cv::cuda::PtrStep<uchar3> posY,
     const int outputWidth = square_length * 2;
     const int outputHeight = square_length * 1;
 
+    // 1. Loop through all of the pixels in the output image
     if (dst_y < rows && dst_x < cols) {
         // 2. Get the normalised u,v coordinates for the current pixel
 	float U = (float)dst_x / (outputWidth - 1);  // 0..1
@@ -185,7 +163,6 @@ __global__ void process(const cv::cuda::PtrStep<uchar3> posY,
         cart2D cart = convertEquirectUVtoUnit2D(theta, phi, square_length);
 
         // 5. use this pixel to extract the colour
-
 	uchar3 val = make_uchar3(0, 0, 0);
 	if (cart.faceIndex == X_POS) {
 	    val = posX(cart.y, cart.x);
