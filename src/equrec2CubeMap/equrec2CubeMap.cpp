@@ -21,10 +21,6 @@ int main(int argc, char **argv) {
   // Get images from command line
   cv::Mat source = cv::imread(argv[1], cv::IMREAD_COLOR);
 
-  // Get operation parameters from the command line
-  float scaleX = min(atof(argv[2]), 5.0);
-  float scaleY = min(atof(argv[3]), 5.0);
-
   // Create placeholder windows
   cv::namedWindow("Original Image", cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
   cv::namedWindow("Processed Image", cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
@@ -87,8 +83,6 @@ int main(int argc, char **argv) {
             z = int(ty - 0.5 * sqr);
           }
 
-          // print(str(x)+", "+str(y)+", "+str(z))
-
           else if (j < 2 * sqr + 1) { // bottom middle [Z-]
 
             tx = j - sqr;
@@ -109,19 +103,16 @@ int main(int argc, char **argv) {
         }
 
         // now find out the polar coordinates
-
         float rho = sqrt(x * x + y * y + z * z);
         float normTheta =
             getTheta(x, y) / (2 * M_PI); // /(2*M_PI) normalise theta
         float normPhi = (M_PI - acos(z / rho)) / M_PI; // /M_PI normalise phi
 
         // use this for coordinates
-
         float iX = normTheta * inputWidth;
         float iY = normPhi * inputHeight;
 
         // catch possible overflows
-
         if (iX >= inputWidth) {
           iX = iX - (inputWidth);
         }
@@ -129,8 +120,6 @@ int main(int argc, char **argv) {
           iY = iY - (inputHeight);
         }
 
-        // cout << int(iX) << endl;
-        // cout << iY << endl;
         destination.at<cv::Vec3b>(i, j) = source.at<cv::Vec3b>(int(iY), int(iX));
       }
     }
