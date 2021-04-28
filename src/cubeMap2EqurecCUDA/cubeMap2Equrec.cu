@@ -12,10 +12,16 @@ enum bar {
     X_POS, X_NEG, Y_POS, Y_NEG, Z_POS, Z_NEG
 };
 
-__device__ struct coords_n_face {
+__device__ struct cart3D {
     float x;
     float y;
     float z;
+    int faceIndex;
+};
+
+__device__ struct cart2D {
+    float x;
+    float y;
     int faceIndex;
 };
 
@@ -54,8 +60,8 @@ __device__ float2 unit3DToUnit2D(float x, float y, float z, int faceIndex) {
     return make_float2(x2D, y2D);
 }
 
-__device__ coords_n_face projectX(float theta, float phi, int sign) {
-    coords_n_face result;
+__device__ cart3D projectX(float theta, float phi, int sign) {
+    cart3D result;
 
     result.x = sign * 0.5;
     result.faceIndex = sign == 1 ? X_POS : X_NEG;
@@ -65,8 +71,8 @@ __device__ coords_n_face projectX(float theta, float phi, int sign) {
     return result;
 }
 
-__device__ coords_n_face projectY(float theta, float phi, int sign) {
-    coords_n_face result;
+__device__ cart3D projectY(float theta, float phi, int sign) {
+    cart3D result;
 
     result.y = sign * 0.5;
     result.faceIndex = sign == 1 ? Y_POS : Y_NEG;
@@ -77,8 +83,8 @@ __device__ coords_n_face projectY(float theta, float phi, int sign) {
 }
 
 
-__device__ coords_n_face projectZ(float theta, float phi, int sign) {
-    coords_n_face result;
+__device__ cart3D projectZ(float theta, float phi, int sign) {
+    cart3D result;
 
     result.z = sign * 0.5;
     result.faceIndex = sign == 1 ? Z_POS : Z_NEG;
@@ -109,6 +115,45 @@ __device__ coords_n_face projectZ(float theta, float phi, int sign) {
 // 	    return negz.getpixel(y, x);
 // 	}
 // }
+
+
+__device__ cart2D convertEquirectUVtoUnit2D(float theta, float phi, int squareLength) {
+    // Calculate the unit vector
+    float x = cos(theta) * sin(phi);
+    float y = sin(theta) * sin(phi);
+    float z = cos(phi);
+
+    // Find the maximum value in the unit vector
+    float maximum = max(abs(x), max(abs(y), abs(z)));
+    float xx = x / maximum;
+    float yy = y / maximum;
+    float zz = z / maximum;
+
+    // Project ray to cube surface
+    cart3D equirectUV;
+    if (xx == 1 or xx == -1) {
+	equirectUV = projectX(theta, phi, xx);
+    }
+    else if (yy == 1 or yy == -1) {
+	equirectUV = projectY(theta, phi, yy);
+    }
+    else {
+	equirectUV = projectZ(theta, phi, zz);
+    }
+
+    float2 unit2D = unit3DToUnit2D(equirectUV.x, equirectUV.y, equirectUV.z,
+				   equirectUV.faceIndex);
+
+    unit2D.x *= squareLength;
+    unit2D.y *= squareLength;
+
+    cart2D result;
+    result.x = int(unit2D.x);
+    result.y = int(unit2D.y);
+    result.faceIndex = equirectUV.faceIndex;
+
+    return result;
+}
 
 __global__ void process(const cv::cuda::PtrStep<uchar3> posY,
 			const cv::cuda::PtrStep<uchar3> posX,
