@@ -15,10 +15,6 @@ int main(int argc, char **argv) {
   cv::namedWindow("Processed Image", cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
 
   cv::Mat h_img = cv::imread(argv[1]);
-  const int sqr = h_img.cols / 4.0;
-  const int output_width = sqr * 3;
-  const int output_height = sqr * 2;
-  cv::Mat h_result(output_height, output_width, CV_8UC3, cv::Scalar(0, 255, 0));
   cv::cuda::GpuMat d_result, posY, posX, negY, negX, posZ, negZ; 
 
   cv::imshow("Original Image", h_img);
@@ -29,6 +25,10 @@ int main(int argc, char **argv) {
   negX.upload(h_img(cv::Rect(0, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
   negZ.upload(h_img(cv::Rect(h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
   posZ.upload(h_img(cv::Rect(2*h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+
+  const int output_width = posY.rows * 2;
+  const int output_height = posY.rows;
+  cv::Mat h_result(output_height, output_width, CV_8UC3, cv::Scalar(0, 255, 0));
 
   auto begin = chrono::high_resolution_clock::now();
   const int iter = 1;
