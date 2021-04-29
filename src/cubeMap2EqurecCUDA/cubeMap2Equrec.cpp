@@ -7,7 +7,7 @@ using namespace std;
 
 void startCUDA(cv::cuda::GpuMat &posY, cv::cuda::GpuMat &posX,
 	       cv::cuda::GpuMat &negY, cv::cuda::GpuMat &negX,
-	       cv::cuda::GpuMat &posZ, cv::cuda::GpuMat &negZ,
+	       cv::cuda::GpuMat &negZ, cv::cuda::GpuMat &posZ,
 	       cv::cuda::GpuMat &dst);
 
 int main(int argc, char **argv) {
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   d_result.upload(h_result);
 
   for (int i = 0; i < iter; i++) {
-    startCUDA(posY, posX, negY, negX, posZ, negZ, d_result);
+    startCUDA(posY, posX, negY, negX, negZ, posZ, d_result);
   }
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = end - begin;

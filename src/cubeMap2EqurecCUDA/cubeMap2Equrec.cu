@@ -8,7 +8,7 @@
 #include <opencv2/core/cuda/vec_math.hpp>
 
 // Enum for faces' indices
-enum bar {
+enum cube_faces {
     X_POS, X_NEG, Y_POS, Y_NEG, Z_POS, Z_NEG
 };
 
@@ -38,11 +38,11 @@ __device__ float2 unit3DToUnit2D(float x, float y, float z, int faceIndex) {
 	y2D = z + 0.5;
     }
     else if(faceIndex == Y_POS) { // Y+
-	x2D = (x * -1) + 0.5;
+	x2D = x + 0.5;
 	y2D = z + 0.5;
     }
     else if(faceIndex == Y_NEG) { // Y-
-	x2D = x + 0.5;
+	x2D = (x * -1) + 0.5;
 	y2D = z + 0.5;
     }
     else if(faceIndex == Z_POS) { // Z+
@@ -53,7 +53,7 @@ __device__ float2 unit3DToUnit2D(float x, float y, float z, int faceIndex) {
 	x2D = y + 0.5;
 	y2D = x + 0.5;
     }
-    // need to do this as image.getPixel takes pixels from the top left corner.
+    // Need to do this as image.getPixel takes pixels from the top left corner.
 
     y2D = 1 - y2D;
 
@@ -74,8 +74,8 @@ __device__ cart3D projectX(float theta, float phi, int sign) {
 __device__ cart3D projectY(float theta, float phi, int sign) {
     cart3D result;
 
-    result.y = sign * 0.5;
-    result.faceIndex = sign == 1 ? Y_POS : Y_NEG;
+    result.y = -sign * 0.5;
+    result.faceIndex = sign == 1 ? Y_POS: Y_NEG;
     float rho = result.y / (sin(theta) * sin(phi));
     result.x = rho * cos(theta) * sin(phi);
     result.z = rho * cos(phi);
@@ -103,7 +103,7 @@ __device__ cart2D convertEquirectUVtoUnit2D(float theta, float phi, int squareLe
     // Find the maximum value in the unit vector
     float maximum = max(abs(x), max(abs(y), abs(z)));
     float xx = x / maximum;
-    float yy = y / maximum;
+    float yy = -y / maximum;
     float zz = z / maximum;
 
     // Project ray to cube surface
@@ -136,8 +136,8 @@ __global__ void process(const cv::cuda::PtrStep<uchar3> posY,
 			const cv::cuda::PtrStep<uchar3> posX,
 			const cv::cuda::PtrStep<uchar3> negY,
 			const cv::cuda::PtrStep<uchar3> negX,
-			const cv::cuda::PtrStep<uchar3> posZ,
 			const cv::cuda::PtrStep<uchar3> negZ,
+			const cv::cuda::PtrStep<uchar3> posZ,
 			cv::cuda::PtrStep<uchar3> dst, int rows, int cols,
 			int square_length) {
 
@@ -195,12 +195,12 @@ int divUp(int a, int b) {
 
 void startCUDA (cv::cuda::GpuMat& posY, cv::cuda::GpuMat& posX,
 		cv::cuda::GpuMat& negY, cv::cuda::GpuMat& negX,
-		cv::cuda::GpuMat& posZ, cv::cuda::GpuMat& negZ,
+		cv::cuda::GpuMat& negZ, cv::cuda::GpuMat& posZ,
 		cv::cuda::GpuMat& dst) {
     const dim3 block(32, 8);
     const dim3 grid(divUp(dst.cols, block.x), divUp(dst.rows, block.y));
 
-    process<<<grid, block>>>(posY, posX, negY, negX, posZ, negZ, dst,
+    process<<<grid, block>>>(posY, posX, negY, negX, negZ, posZ, dst,
 			     dst.rows, dst.cols, posX.rows);
 }
 
