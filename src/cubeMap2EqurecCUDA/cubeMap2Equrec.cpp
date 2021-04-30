@@ -74,7 +74,6 @@ int main(int argc, char **argv) {
   cv::imshow("Processed Image", d_result);
   d_result.download(h_result);
   std::string output_file(argv[2]);
-  cout << output_file << endl;
   cv::imwrite(output_file, h_result);
 
   cout << "Processing time: " << diff.count() << " s" << endl;
