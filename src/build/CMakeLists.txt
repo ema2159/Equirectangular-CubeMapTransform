@@ -25,10 +25,12 @@ endif()
 link_libraries(${OpenCV_LIBS})
 
 # Create executables
+# OpenMP implementation
 # Equirectangular to Cube Map
 add_executable(equrec2CubeMap ../equrec2CubeMap/equrec2CubeMap.cpp)
 # Cube Map to Equirectangular
 add_executable(cubeMap2Equrec ../cubeMap2Equrec/cubeMap2Equrec.cpp)
+
 # CUDA implementation
 # Equirectangular to Cube Map
 add_executable(equrec2CubeMapCUDA ../equrec2CubeMapCUDA/equrec2CubeMap.cpp)
