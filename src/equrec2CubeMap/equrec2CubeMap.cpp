@@ -39,89 +39,86 @@ int main(int argc, char **argv) {
 
   auto begin = chrono::high_resolution_clock::now();
 
-  const int iter = 1;
-  for (int it = 0; it < iter; it++) {
 #pragma omp parallel for
-    for (int j = 1; j < destination.cols; j++) {
-      // #pragma omp parallel for
-      for (int i = 1; i < destination.rows; i++) {
-        float tx = 0.0;
-        float ty = 0.0;
-        float x = 0.0;
-        float y = 0.0;
-        float z = 0.0;
+  for (int j = 1; j < destination.cols; j++) {
+    // #pragma omp parallel for
+    for (int i = 1; i < destination.rows; i++) {
+      float tx = 0.0;
+      float ty = 0.0;
+      float x = 0.0;
+      float y = 0.0;
+      float z = 0.0;
 
-        if (i < sqr + 1) {   // top half
-          if (j < sqr + 1) { // top left box [Y+]
-            tx = j;
-            ty = i;
-            x = tx - 0.5 * sqr;
-            y = 0.5 * sqr;
-            z = ty - 0.5 * sqr;
-          } else if (j < 2 * sqr + 1) { // top middle [X+]
-            tx = j - sqr;
-            ty = i;
-            x = 0.5 * sqr;
-            y = (tx - 0.5 * sqr) * -1;
-            z = ty - 0.5 * sqr;
-          }
-
-          else { // top right [Y-]
-            tx = j - sqr * 2;
-            ty = i;
-            x = (tx - 0.5 * sqr) * -1;
-            y = -0.5 * sqr;
-            z = ty - 0.5 * sqr;
-          }
-        } else {                 // bottom half
-          if (j < sqr + 1) { // bottom left box [X-]
-
-            tx = j;
-            ty = i - sqr;
-            x = int(-0.5 * sqr);
-            y = int(tx - 0.5 * sqr);
-            z = int(ty - 0.5 * sqr);
-          }
-
-          else if (j < 2 * sqr + 1) { // bottom middle [Z-]
-
-            tx = j - sqr;
-            ty = i - sqr;
-            x = (ty - 0.5 * sqr) * -1;
-            y = (tx - 0.5 * sqr) * -1;
-            z = 0.5 * sqr; // was -0.5 might be due to phi being reversed
-          }
-
-          else { // bottom right [Z+]
-
-            tx = j - sqr * 2;
-            ty = i - sqr;
-            x = ty - 0.5 * sqr;
-            y = (tx - 0.5 * sqr) * -1;
-            z = -0.5 * sqr; // was +0.5 might be due to phi being reversed
-          }
+      if (i < sqr + 1) {   // top half
+        if (j < sqr + 1) { // top left box [Y+]
+          tx = j;
+          ty = i;
+          x = tx - 0.5 * sqr;
+          y = 0.5 * sqr;
+          z = ty - 0.5 * sqr;
+        } else if (j < 2 * sqr + 1) { // top middle [X+]
+          tx = j - sqr;
+          ty = i;
+          x = 0.5 * sqr;
+          y = (tx - 0.5 * sqr) * -1;
+          z = ty - 0.5 * sqr;
         }
 
-        // now find out the polar coordinates
-        float rho = sqrt(x * x + y * y + z * z);
-        float normTheta =
-            getTheta(x, y) / (2 * M_PI); // /(2*M_PI) normalise theta
-        float normPhi = (M_PI - acos(z / rho)) / M_PI; // /M_PI normalise phi
-
-        // use this for coordinates
-        float iX = normTheta * inputWidth;
-        float iY = normPhi * inputHeight;
-
-        // catch possible overflows
-        if (iX >= inputWidth) {
-          iX = iX - (inputWidth);
+        else { // top right [Y-]
+          tx = j - sqr * 2;
+          ty = i;
+          x = (tx - 0.5 * sqr) * -1;
+          y = -0.5 * sqr;
+          z = ty - 0.5 * sqr;
         }
-        if (iY >= inputHeight) {
-          iY = iY - (inputHeight);
+      } else {             // bottom half
+        if (j < sqr + 1) { // bottom left box [X-]
+
+          tx = j;
+          ty = i - sqr;
+          x = int(-0.5 * sqr);
+          y = int(tx - 0.5 * sqr);
+          z = int(ty - 0.5 * sqr);
         }
 
-        destination.at<cv::Vec3b>(i, j) = source.at<cv::Vec3b>(int(iY), int(iX));
+        else if (j < 2 * sqr + 1) { // bottom middle [Z-]
+
+          tx = j - sqr;
+          ty = i - sqr;
+          x = (ty - 0.5 * sqr) * -1;
+          y = (tx - 0.5 * sqr) * -1;
+          z = 0.5 * sqr; // was -0.5 might be due to phi being reversed
+        }
+
+        else { // bottom right [Z+]
+
+          tx = j - sqr * 2;
+          ty = i - sqr;
+          x = ty - 0.5 * sqr;
+          y = (tx - 0.5 * sqr) * -1;
+          z = -0.5 * sqr; // was +0.5 might be due to phi being reversed
+        }
       }
+
+      // now find out the polar coordinates
+      float rho = sqrt(x * x + y * y + z * z);
+      float normTheta =
+          getTheta(x, y) / (2 * M_PI); // /(2*M_PI) normalise theta
+      float normPhi = (M_PI - acos(z / rho)) / M_PI; // /M_PI normalise phi
+
+      // use this for coordinates
+      float iX = normTheta * inputWidth;
+      float iY = normPhi * inputHeight;
+
+      // catch possible overflows
+      if (iX >= inputWidth) {
+        iX = iX - (inputWidth);
+      }
+      if (iY >= inputHeight) {
+        iY = iY - (inputHeight);
+      }
+
+      destination.at<cv::Vec3b>(i, j) = source.at<cv::Vec3b>(int(iY), int(iX));
     }
   }
   auto end = std::chrono::high_resolution_clock::now();
@@ -130,8 +127,6 @@ int main(int argc, char **argv) {
   cv::imshow("Processed Image", destination);
 
   cout << "Processing time: " << diff.count() << " s" << endl;
-  cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;
-  cout << "IPS: " << iter / diff.count() << endl;
 
   cv::waitKey();
   return 0;
