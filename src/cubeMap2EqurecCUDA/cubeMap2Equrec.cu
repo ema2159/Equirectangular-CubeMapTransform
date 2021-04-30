@@ -53,7 +53,6 @@ __device__ float2 unit3DToUnit2D(float x, float y, float z, int faceIndex) {
 	x2D = y + 0.5;
 	y2D = x + 0.5;
     }
-    // Need to do this as image.getPixel takes pixels from the top left corner.
 
     y2D = 1 - y2D;
 
