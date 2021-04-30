@@ -1,0 +1,14 @@
+#+title: Cube Map to Equirectangular and Equirectangular to Cube Map OpenCV implementations with CUDA and OpenMP
+#+author: Emmanuel Bustos Torres
+
+* Description
+  This repository allows you to transform equirectangular images to cube map images and vice versa with two types of implementations, both using C++ OpenCV one accelerated with OpenMP and the other accelerate with CUDA.
+
+* Requirements
+  - OpenCV 4.2.0
+  - CUDA 10.1 (If using CUDA implementation)
+  - GCC 8
+  - CMake 2.8<
+
+* Instructions
+In order to be able to use this program, you need to build the project first. In order to do this, you need to go to the =src/build= and then modify the CMakeLists.txt file accordingly. You need to modify line 9 (=find_package(OpenCV REQUIRED PATHS "/home/ema2159/.local/opencv/opencv-4.2.0/build")=) changing the ="/home/ema2159/.local/opencv/opencv-4.2.0/build"= part with your own build of OpenCV. Then, you can remove the parts that you don't need (I.E. the Include CUDA and CUDA implementation sections in case you only want OpenMP). Lastly, you need to execute the =cmake . && make= command inside the build directory. This will build all the executables inside the build directory which then you can utilize.
