@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
   auto begin = chrono::high_resolution_clock::now();
 
 #pragma omp parallel for
-  for (int j = 1; j < destination.cols; j++) {
+  for (int j = 0; j < destination.cols; j++) {
     // #pragma omp parallel for
-    for (int i = 1; i < destination.rows; i++) {
+    for (int i = 0; i < destination.rows; i++) {
       float tx = 0.0;
       float ty = 0.0;
       float x = 0.0;
