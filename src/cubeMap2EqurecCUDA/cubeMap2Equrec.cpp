@@ -2,6 +2,7 @@
 #include <iostream>
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/opencv.hpp>
+#include <string>
 
 using namespace std;
 
@@ -11,20 +12,39 @@ void startCUDA(cv::cuda::GpuMat &posY, cv::cuda::GpuMat &posX,
 	       cv::cuda::GpuMat &dst);
 
 int main(int argc, char **argv) {
-  cv::namedWindow("Original Image", cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
   cv::namedWindow("Processed Image", cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
 
-  cv::Mat h_img = cv::imread(argv[1]);
   cv::cuda::GpuMat d_result, posY, posX, negY, negX, posZ, negZ; 
 
-  cv::imshow("Original Image", h_img);
-  // Extract images from cube map
-  posY.upload(h_img(cv::Rect(0, 0, h_img.cols/3, h_img.rows/2)));
-  posX.upload(h_img(cv::Rect(h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
-  negY.upload(h_img(cv::Rect(2*h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
-  negX.upload(h_img(cv::Rect(0, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
-  negZ.upload(h_img(cv::Rect(h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
-  posZ.upload(h_img(cv::Rect(2*h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // Get six cube images inside a given directory
+  std::string imgs_path(argv[1]);
+  posY.upload(cv::imread(imgs_path + "posy.jpg"));
+  posX.upload(cv::imread(imgs_path + "posx.jpg"));
+  negY.upload(cv::imread(imgs_path + "negy.jpg"));
+  negX.upload(cv::imread(imgs_path + "negx.jpg"));
+  negZ.upload(cv::imread(imgs_path + "negz.jpg"));
+  posZ.upload(cv::imread(imgs_path + "posz.jpg"));
+
+  // Extract images from cube map from a single file with the following format:
+  // 	+----+----+----+
+  // 	| Y+ | X+ | Y- |
+  // 	+----+----+----+
+  // 	| X- | Z- | Z+ |
+  // 	+----+----+----+
+  // cv::Mat h_img = cv::imread(argv[1]);
+  // posY.upload(h_img(cv::Rect(0, 0, h_img.cols/3, h_img.rows/2)));
+  // posX.upload(h_img(cv::Rect(h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
+  // negY.upload(h_img(cv::Rect(2*h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
+  // negX.upload(h_img(cv::Rect(0, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // negZ.upload(h_img(cv::Rect(h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // posZ.upload(h_img(cv::Rect(2*h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // Write individual extracted images
+  // cv::imwrite("posy.jpg", h_img(cv::Rect(0, 0, h_img.cols/3, h_img.rows/2)));
+  // cv::imwrite("posx.jpg", h_img(cv::Rect(h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
+  // cv::imwrite("negy.jpg", h_img(cv::Rect(2*h_img.cols/3, 0, h_img.cols/3, h_img.rows/2)));
+  // cv::imwrite("negx.jpg", h_img(cv::Rect(0, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // cv::imwrite("negz.jpg", h_img(cv::Rect(h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
+  // cv::imwrite("posz.jpg", h_img(cv::Rect(2*h_img.cols/3, h_img.rows/2, h_img.cols/3, h_img.rows/2)));
 
   const int output_width = posY.rows * 2;
   const int output_height = posY.rows;
@@ -42,6 +62,10 @@ int main(int argc, char **argv) {
   std::chrono::duration<double> diff = end - begin;
 
   cv::imshow("Processed Image", d_result);
+  d_result.download(h_result);
+  std::string output_file(argv[2]);
+  cout << output_file << endl;
+  cv::imwrite(output_file, h_result);
 
   cout << "Processing time: " << diff.count() << " s" << endl;
   cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;
