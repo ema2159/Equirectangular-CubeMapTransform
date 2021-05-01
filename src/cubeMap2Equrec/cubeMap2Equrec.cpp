@@ -142,6 +142,37 @@ int main(int argc, char **argv) {
   negZ = cv::imread(imgs_path + "negz.jpg");
   posZ = cv::imread(imgs_path + "posz.jpg");
 
+  // Extract images from cube map from a single file with the following format:
+  // 	+----+----+----+
+  // 	| Y+ | X+ | Y- |
+  // 	+----+----+----+
+  // 	| X- | Z- | Z+ |
+  // 	+----+----+----+
+  // cv::Mat h_img = cv::imread(argv[1]);
+  // posY.upload(h_img(cv::Rect(0, 0, h_img.cols / 3, h_img.rows / 2)));
+  // posX.upload(
+  //     h_img(cv::Rect(h_img.cols / 3, 0, h_img.cols / 3, h_img.rows / 2)));
+  // negY.upload(
+  //     h_img(cv::Rect(2 * h_img.cols / 3, 0, h_img.cols / 3, h_img.rows / 2)));
+  // negX.upload(
+  //     h_img(cv::Rect(0, h_img.rows / 2, h_img.cols / 3, h_img.rows / 2)));
+  // negZ.upload(h_img(cv::Rect(h_img.cols / 3, h_img.rows / 2, h_img.cols / 3,
+  //                            h_img.rows / 2)));
+  // posZ.upload(h_img(cv::Rect(2 * h_img.cols / 3, h_img.rows / 2, h_img.cols / 3,
+  //                            h_img.rows / 2)));
+  // Write individual extracted images cv::imwrite(
+  //     "posy.jpg", h_img(cv::Rect(0, 0, h_img.cols / 3, h_img.rows / 2)));
+  // cv::imwrite("posx.jpg", h_img(cv::Rect(h_img.cols / 3, 0, h_img.cols / 3,
+  //                                        h_img.rows / 2)));
+  // cv::imwrite("negy.jpg", h_img(cv::Rect(2 * h_img.cols / 3, 0, h_img.cols / 3,
+  //                                        h_img.rows / 2)));
+  // cv::imwrite("negx.jpg", h_img(cv::Rect(0, h_img.rows / 2, h_img.cols / 3,
+  //                                        h_img.rows / 2)));
+  // cv::imwrite("negz.jpg", h_img(cv::Rect(h_img.cols / 3, h_img.rows / 2,
+  //                                        h_img.cols / 3, h_img.rows / 2)));
+  // cv::imwrite("posz.jpg", h_img(cv::Rect(2 * h_img.cols / 3, h_img.rows / 2,
+  //                                        h_img.cols / 3, h_img.rows / 2)));
+
   const int output_width = posY.rows * 2;
   const int output_height = posY.rows;
   const int square_length = output_height;
