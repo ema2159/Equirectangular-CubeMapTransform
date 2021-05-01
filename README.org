@@ -2,7 +2,7 @@
 #+author: Emmanuel Bustos Torres
 
 * Description
-  This repository allows you to transform equirectangular images to cube map images and vice versa with two types of implementations, both using C++ OpenCV one accelerated with OpenMP and the other accelerate with CUDA.
+  This repository allows you to transform equirectangular images to cube map images and vice versa with two types of implementations, both using C++ OpenCV one accelerated with OpenMP and the other accelerate with CUDA. It is a port from the Python version implemented [[https://github.com/PaulMakesStuff/Cubemaps-Equirectangular-DualFishEye][here]].
 
 * Requirements
   - OpenCV 4.2.0
