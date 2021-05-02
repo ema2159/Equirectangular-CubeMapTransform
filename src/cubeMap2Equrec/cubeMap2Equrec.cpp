@@ -123,13 +123,13 @@ int main(int argc, char **argv) {
   cv::Mat d_result, posY, posX, negY, negX, posZ, negZ;
 
   // Get six cube images inside a given directory
-  // std::string imgs_path(argv[1]);
-  // posY = cv::imread(imgs_path + "posy.jpg");
-  // posX = cv::imread(imgs_path + "posx.jpg");
-  // negY = cv::imread(imgs_path + "negy.jpg");
-  // negX = cv::imread(imgs_path + "negx.jpg");
-  // negZ = cv::imread(imgs_path + "negz.jpg");
-  // posZ = cv::imread(imgs_path + "posz.jpg");
+  std::string imgs_path(argv[1]);
+  posY = cv::imread(imgs_path + "posy.jpg");
+  posX = cv::imread(imgs_path + "posx.jpg");
+  negY = cv::imread(imgs_path + "negy.jpg");
+  negX = cv::imread(imgs_path + "negx.jpg");
+  negZ = cv::imread(imgs_path + "negz.jpg");
+  posZ = cv::imread(imgs_path + "posz.jpg");
 
   // Extract images from cube map from a single file with the following format:
   // 	+----+----+----+
