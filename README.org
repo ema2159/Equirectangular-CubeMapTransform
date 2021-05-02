@@ -10,5 +10,82 @@
   - GCC 8
   - CMake 2.8<
 
-* Instructions
+* Build instructions
 In order to be able to use this program, you need to build the project first. In order to do this, you need to go to the =src/build= and then modify the CMakeLists.txt file accordingly. You need to modify line 9 (=find_package(OpenCV REQUIRED PATHS "/home/ema2159/.local/opencv/opencv-4.2.0/build")=) changing the =/home/ema2159/.local/opencv/opencv-4.2.0/build= part with your own build of OpenCV. Then, you can remove the parts that you don't need (I.E. the Include CUDA and CUDA implementation sections in case you only want OpenMP). Lastly, you need to execute the =cmake . && make= command inside the build directory. This will build all the executables inside the build directory which then you can utilize.
+
+* Usage instructions
+  In order to run any of the programs in question, you have to get into the build directory and execute the binaries from there as follows:
+** Equirectangular to cube map:
+   - OpenMP version:
+
+   =./equrec2CubeMap ../../common/assets/sample.jpg ../../common/assets/sampleCubeMap2.jpg=
+
+   - CUDA version:
+
+   =./equrec2CubeMapCUDA ../../common/assets/sample.jpg ../../common/assets/sampleCubeMap2.jpg=
+
+   Expected result:
+
+   [[./common/assets/sampleCubeMap.jpg]]
+
+
+** Cube map to equirectangular:
+   - OpenMP version:
+
+   =./cubeMap2Equrec ../../common/assets/sample- ../../common/assets/sample2.jpg=
+
+   - CUDA version:
+
+   =./cubeMap2EqurecCUDA ../../common/assets/sample- ../../common/assets/sample2.jpg=
+
+   Expected result:
+
+   [[./common/assets/sample.jpg]]
+
+   The default implementation only considers the case where the cube map is in six separate files. If you want to grab the cube map from a single image, go to the =cubeMap2Equrec.cpp= file and comment and uncomment the following section as follows it as follows:
+   #+begin_src c++
+
+     // Get six cube images inside a given directory
+     // std::string imgs_path(argv[1]);
+     // posY.upload(cv::imread(imgs_path + "posy.jpg"));
+     // posX.upload(cv::imread(imgs_path + "posx.jpg"));
+     // negY.upload(cv::imread(imgs_path + "negy.jpg"));
+     // negX.upload(cv::imread(imgs_path + "negx.jpg"));
+     // negZ.upload(cv::imread(imgs_path + "negz.jpg"));
+     // posZ.upload(cv::imread(imgs_path + "posz.jpg"));
+
+     // Extract images from cube map from a single file with the following format:
+     //		+----+----+----+
+     //		| Y+ | X+ | Y- |
+     //		+----+----+----+
+     //		| X- | Z- | Z+ |
+     //		+----+----+----+
+     cv::Mat h_img = cv::imread(argv[1]);
+     posY.upload(h_img(cv::Rect(0, 0, h_img.cols / 3, h_img.rows / 2)));
+     posX.upload(
+	 h_img(cv::Rect(h_img.cols / 3, 0, h_img.cols / 3, h_img.rows / 2)));
+     negY.upload(
+	 h_img(cv::Rect(2 * h_img.cols / 3, 0, h_img.cols / 3, h_img.rows /
+	 2)));
+     negX.upload(
+	 h_img(cv::Rect(0, h_img.rows / 2, h_img.cols / 3, h_img.rows / 2)));
+     negZ.upload(h_img(cv::Rect(h_img.cols / 3, h_img.rows / 2, h_img.cols / 3,
+				h_img.rows / 2)));
+     posZ.upload(h_img(cv::Rect(2 * h_img.cols / 3, h_img.rows / 2, h_img.cols /
+     3,
+				h_img.rows / 2)));
+     // Write individual extracted images
+     cv::imwrite("posy.jpg",
+		 h_img(cv::Rect(0, 0, h_img.cols / 3, h_img.rows / 2)));
+     cv::imwrite("posx.jpg", h_img(cv::Rect(h_img.cols / 3, 0, h_img.cols / 3,
+					    h_img.rows / 2)));
+     cv::imwrite("negy.jpg", h_img(cv::Rect(2 * h_img.cols / 3, 0, h_img.cols /
+     3,
+					    h_img.rows / 2)));
+     cv::imwrite("negx.jpg", h_img(cv::Rect(0, h_img.rows / 2, h_img.cols / 3,
+					    h_img.rows / 2)));
+     cv::imwrite("negz.jpg", h_img(cv::Rect(h_img.cols / 3, h_img.rows / 2,
+					    h_img.cols / 3, h_img.rows / 2)));
+     cv::imwrite("posz.jpg", h_img(cv::Rect(2 * h_img.cols / 3, h_img.rows / 2,
+					    h_img.cols / 3, h_img.rows / 2)));
+   #+end_src
