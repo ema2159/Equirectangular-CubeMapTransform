@@ -33,6 +33,9 @@ int main(int argc, char **argv) {
   std::chrono::duration<double> diff = end - begin;
 
   cv::imshow("Processed Image", d_result);
+  d_result.download(h_result);
+  std::string output_file(argv[2]);
+  cv::imwrite(output_file, h_result);
 
   cout << "Processing time: " << diff.count() << " s" << endl;
   cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;

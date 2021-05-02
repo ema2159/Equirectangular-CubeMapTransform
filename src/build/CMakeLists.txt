@@ -12,29 +12,41 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(CUDA REQUIRED)
 if(CUDA_FOUND)
     SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};)
-    # Equirectangular to cube map
+    # Equirectangular to cube map    
     cuda_compile(equrec2Cube ../equrec2CubeMapCUDA/equrec2CubeMap.cu)
     cuda_add_library(equrec2CubeCUDA ../equrec2CubeMapCUDA/equrec2CubeMap.cu)
     # Cubemap to equirectangular
     cuda_compile(cube2Equrec ../cubeMap2EqurecCUDA/cubeMap2Equrec.cu)
     cuda_add_library(cube2EqurecCUDA ../cubeMap2EqurecCUDA/cubeMap2Equrec.cu)
+    # Laplacian filter
+    cuda_compile(laplace ../convolutionLaplace/laplaceFilter.cu)
+    cuda_add_library(laplaceCUDA ../convolutionLaplace/laplaceFilter.cu)
+    # Color segmentation
+    cuda_compile(colorSeg ../colorSegmentation/colorSeg.cu)
+    cuda_add_library(colorSegCUDA ../colorSegmentation/colorSeg.cu)
     add_definitions(-DGPU_OPENCV_ENABLE)
 endif()
-
+  
 # Link opencv libs to all executables
 link_libraries(${OpenCV_LIBS})
 
 # Create executables
-# OpenMP implementation
 # Equirectangular to Cube Map
 add_executable(equrec2CubeMap ../equrec2CubeMap/equrec2CubeMap.cpp)
 # Cube Map to Equirectangular
 add_executable(cubeMap2Equrec ../cubeMap2Equrec/cubeMap2Equrec.cpp)
-
 # CUDA implementation
-# Equirectangular to Cube Map
 add_executable(equrec2CubeMapCUDA ../equrec2CubeMapCUDA/equrec2CubeMap.cpp)
 target_link_libraries(equrec2CubeMapCUDA equrec2CubeCUDA)
 # Cube Map to Equirectangular
+# CUDA implementation
 add_executable(cubeMap2EqurecCUDA ../cubeMap2EqurecCUDA/cubeMap2Equrec.cpp)
 target_link_libraries(cubeMap2EqurecCUDA cube2EqurecCUDA)
+# Laplacian filter
+add_executable(laplaceFilter ../convolutionLaplace/laplaceFilter.cpp)
+target_link_libraries(laplaceFilter laplaceCUDA)
+# Gaussian filter
+add_executable(gaussFilter ../convolutionGauss/gaussFilter.cpp)
+# Color Segmentation
+add_executable(colorSeg ../colorSegmentation/colorSeg.cpp)
+target_link_libraries(colorSeg colorSegCUDA)

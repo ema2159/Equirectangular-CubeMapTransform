@@ -125,6 +125,8 @@ int main(int argc, char **argv) {
   std::chrono::duration<double> diff = end - begin;
 
   cv::imshow("Processed Image", destination);
+  std::string output_file(argv[2]);
+  cv::imwrite(output_file, destination);
 
   cout << "Processing time: " << diff.count() << " s" << endl;
 
