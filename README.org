@@ -42,7 +42,7 @@ In order to be able to use this program, you need to build the project first. In
 
    [[./common/assets/sample.jpg]]
 
-   The default implementation only considers the case where the cube map is in six separate files. If you want to grab the cube map from a single image, go to the =cubeMap2Equrec.cpp= file (either in the OpenMP or the CUDA implementation according to your needs) and comment and uncomment the following section as follows it as follows:
+   The default implementation only considers the case where the cube map is in six separate files. If you want to grab the cube map from a single image, go to the =cubeMap2Equrec.cpp= file (either in the OpenMP or the CUDA implementation according to your needs) and comment and uncomment the following section as follows:
    #+begin_src c++
 
      // Get six cube images inside a given directory
